@@ -35,6 +35,9 @@ token = keys[0].strip()
 authorized_id = keys[1].strip()
 authorized_user = keys[2].strip()
 
+# Greetings list
+greetings = ['Hello!','Hey there!','What is going on?','WazzzzAAAAAP!','How do you do?','How have you been?','Hey','Long-time no see','Yo!','Wuddup!','Sup','Heyyy...','Whats Crackin?','Howdy!',]
+
 # 8 Ball function just to spice up this command channel
 def magicEight():
     eightBall = ['It is certain','Outlook good','You may rely on it','Ask again later','Concentrate and ask again','Reply hazy, try again','My reply is no','My sources say no']
@@ -77,6 +80,37 @@ async def on_message(message):
     if message.author.id == client.user.id:
         return
 
+# Converts the msg content to all lowercase
+    msg_content = message.content.lower()
+
+# Greetings
+    if msg_content.startswith('hi') or msg_content.startswith('hello'):
+        with open('chat.log','a') as log:
+            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        log.close()
+        await message.channel.send(random.choice(greetings))
+
+# Status Check
+    if msg_content.startswith('status'):
+        with open('chat.log','a') as log:
+            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        log.close()
+        await message.channel.send(f'{os.system("hostname")}, ALIVE!')
+
+# Update
+    if msg_content.startswith('update'):
+        with open('command.log','a') as log:
+            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        log.close()
+
+        # Kill existing c2 channels
+        chat_pid = os.system("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'")
+        kill_chat = 'kill -9 ' + str(chat_pid)
+        await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
+        os.system('git pull https://github.com/andreweng/c2channel.git')
+        os.system(kill_chat)
+
+# Quick IP Check
     if message.content.startswith('ip'):
         with open('command.log','a') as log:
             log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {message.content}\n')
