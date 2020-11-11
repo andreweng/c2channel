@@ -95,7 +95,8 @@ async def on_message(message):
         with open('chat.log','a') as log:
             log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
         log.close()
-        await message.channel.send(f'{os.system("hostname")}, ALIVE!')
+
+        await message.channel.send(f'Yes, I am here...')
 
 # Update
     if msg_content.startswith('update'):
@@ -121,9 +122,9 @@ async def on_message(message):
         print(f'{dt.datetime.now()}, Update Complete')
 
 # Quick IP Check
-    if message.content.startswith('ip'):
+    if msg_content.startswith('ip'):
         with open('command.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {message.content}\n')
+            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
         log.close()
 
         myIP = getIP()
@@ -134,11 +135,11 @@ async def on_message(message):
         await message.channel.send('.... waiting for next commands')
 
 # Monitor the chatroom for keyword "cmd" and execute commands
-    if message.content.startswith('cmd'):
+    if msg_content.startswith('cmd'):
         if message.author.name == authorized_user:
-            msg = message.content.split(' ')
-            with open('command_dm.log','a') as log:
-                log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {message.content}\n')
+            msg = msg_content.split(' ')
+            with open('command.log','a') as log:
+                log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
             log.close()
             cmd = ' '.join(msg[1:len(msg)])
             stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
@@ -148,26 +149,27 @@ async def on_message(message):
                      await message.channel.send(eachline)
 
 # Lets play magic eightball
-    if message.content.startswith('8ball') or message.content.startswith('shake'):
+    if msg_content.startswith('8ball') or msg_content.startswith('shake'):
         await message.channel.send(f'Ask your question!')
-        time.sleep(5)
+        time.sleep(8)
         await message.channel.send(f'Eightball says:         {magicEight()}')
 
-    if message.content.startswith('help'):
+# Help
+    if msg_content.startswith('help'):
         await message.channel.send('... try sending me a message like "@bot cmd <command>"')
 
-    if message.content.startswith(authorized_id):
+# Execute system commands by DM
+    if msg_content.startswith(authorized_id):
         # split the messages and create a list
-        msg = message.content.split(' ')
+        msg = msg_content.split(' ')
 
         # Create chat log
         with open('command_dm.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [dm], {message.content}\n')
+            log.write(f'{dt.datetime.now()}, [dm], {msg_content}\n')
         log.close()
         
         cmd = ' '.join(msg[2:len(msg)])
 
-        # Second validation; just making sure the right person is sending commands 
         stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
         output = stdout.read().decode('utf-8').split('\n')
         for eachline in output:
