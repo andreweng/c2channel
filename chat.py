@@ -175,7 +175,5 @@ async def on_message(message):
         for eachline in output:
             if bool(eachline) == True:
                 await message.channel.send(eachline)
-        else:
-            await message.channel.send('... Sorry, you are not authorized to send commands')
 
 client.run(token)
