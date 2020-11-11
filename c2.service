@@ -1,0 +1,12 @@
+[Unit]
+Description=C2 Discord Channel
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /etc/c2chan/watchtower.py
+StandardInput=tty-force
+
+[Install]
+WantedBy=multi-user.target
