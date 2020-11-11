@@ -5,7 +5,7 @@ Conflicts=getty@tty1.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /etc/c2chan/watchtower.py
+ExecStart=/usr/bin/python3 /etc/c2channel/watchtower.py
 StandardInput=tty-force
 
 [Install]
