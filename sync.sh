@@ -1,7 +1,7 @@
 #!/bin/bash
 # Remove databases
 rm chat.log &&
-rm command.log &&
+rm command_dm.log &&
 rm nohup.out &&
 
 # Synch up github

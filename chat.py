@@ -109,6 +109,7 @@ async def on_message(message):
         await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
         os.system('git pull https://github.com/andreweng/c2channel.git')
         os.system(kill_chat)
+        print(f'{dt.datetime.now()}, Update Complete')
 
 # Quick IP Check
     if message.content.startswith('ip'):
