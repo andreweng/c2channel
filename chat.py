@@ -110,7 +110,7 @@ async def on_message(message):
 
         await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
         stdout = Popen(git_update, shell=True, stdout=PIPE).stdout
-        output = stdout.read().decode('utf-8).split('\n')
+        output = stdout.read().decode('utf-8').split('\n')
         for eachline in output:
             if bool(eachline) == True:
                 await message.channel.send(eachline)
