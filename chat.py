@@ -106,9 +106,16 @@ async def on_message(message):
         # Kill existing c2 channels
         chat_pid = os.system("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'")
         kill_chat = 'kill -9 ' + str(chat_pid)
+        git_update = 'git pull https://github.com/andreweng/c2channel.git')
+
         await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
-        os.system('git pull https://github.com/andreweng/c2channel.git')
-        os.system(kill_chat)
+        stdout = Popen(git_update, shell=True, stdout=PIPE).stdout
+        output = stdout.read().decode('utf-8).split('\n')
+        for eachline in output:
+            if bool(eachline) == True:
+                await message.channel.send(eachline)
+
+        Popen(kill_chat, shell=True)
         print(f'{dt.datetime.now()}, Update Complete')
 
 # Quick IP Check

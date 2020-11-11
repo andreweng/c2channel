@@ -1,5 +1,10 @@
 #!/bin/bash
-# Remove databases
+# Create logs
+touch chat.log &&
+touch command_dm.log &&
+touch nohup.out &&
+
+# Remove logs
 rm chat.log &&
 rm command_dm.log &&
 rm nohup.out &&
