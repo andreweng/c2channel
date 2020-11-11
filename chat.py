@@ -103,6 +103,8 @@ async def on_message(message):
             log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
         log.close()
 
+        await message.channel.send(f'Checking for updates...')
+
         # Kill existing c2 channels
         chat_pid = os.system("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'")
         kill_chat = 'kill -9 ' + str(chat_pid)
