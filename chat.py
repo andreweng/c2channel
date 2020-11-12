@@ -38,11 +38,6 @@ authorized_user = keys[2].strip()
 # Greetings list
 greetings = ['Hello!','Hey there!','What is going on?','WazzzzAAAAAP!','How do you do?','How have you been?','Hey','Long-time no see','Yo!','Wuddup!','Sup','Heyyy...','Whats Crackin?','Howdy!',]
 
-# 8 Ball function just to spice up this command channel
-def magicEight():
-    eightBall = ['It is certain','Outlook good','You may rely on it','Ask again later','Concentrate and ask again','Reply hazy, try again','My reply is no','My sources say no']
-    return random.choice(eightBall)
-
 # Get IP address info
 def getIP():
     count = 0
@@ -124,7 +119,7 @@ async def on_message(message):
         Popen(kill_process, shell=True)
         print(f'{dt.datetime.now()}, Update Complete')
 
-# Restart chat.py
+# Restart chat.py # REMINDER!! Wrap this into a function and just call it.
     if msg_content.startswith('stop') or msg_content.startswith('restart'):
         with open('/tmp/c2-command.log','a') as log:
             log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
@@ -165,16 +160,6 @@ async def on_message(message):
             for eachline in output:
                 if bool(eachline) == True:
                     await message.channel.send(eachline)
-
-# Lets play magic eightball
-    if msg_content.startswith('8ball') or msg_content.startswith('shake'):
-        await message.channel.send(f'Ask your question!')
-        time.sleep(8)
-        await message.channel.send(f'Eightball says:         {magicEight()}')
-
-# Help
-    if msg_content.startswith('help'):
-        await message.channel.send('... try sending me a message like "@bot cmd <command>"')
 
 # Execute system commands by DM
     if msg_content.startswith(authorized_id):
