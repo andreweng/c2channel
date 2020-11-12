@@ -67,8 +67,7 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    await member.create_dm()
-    await member.dm_channel.send(f'Hey {member.name}, do you have the right place?')
+    await message.channel.send(f'{random.choice(greetings)} {member.name}, do you have the right place?')
 
 @client.event
 async def on_message(message):
@@ -109,9 +108,11 @@ async def on_message(message):
         await message.channel.send(f'Checking for updates...')
 
         # Kill existing c2 channels
-        chat_pid = Popen("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'", shell=True)
-        kill_chat = 'kill -9 ' + str(chat_pid)
         git_update = 'git fetch && git reset --hard HEAD && git pull'
+        pidsub = Popen("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'", shell=True, stdout=PIPE)
+        output = pidsub.stdout.readlines()
+        pid = output[0].decode('utf-8').strip('\n').strip()
+        kill_process = 'kill -9 ' + pid
 
         await message.channel.send(f'--- Hey, I will be right back, I am going to do some updates...')
         stdout = Popen(git_update, shell=True, stdout=PIPE).stdout
@@ -120,7 +121,7 @@ async def on_message(message):
             if bool(eachline) == True:
                 await message.channel.send(eachline)
 
-        Popen(kill_chat, shell=True)
+        Popen(kill_process, shell=True)
         print(f'{dt.datetime.now()}, Update Complete')
 
 # Restart chat.py
