@@ -56,6 +56,8 @@ def getIP():
             count +=1
     return listIP
 
+#################################################
+
 client = discord.Client()
 
 @client.event
@@ -71,7 +73,7 @@ async def on_member_join(member):
 @client.event
 async def on_message(message):
     
-    with open('chat.log','a') as chatlog:
+    with open('/tmp/c2-chat.log','a') as chatlog:
         chatlog.write(f'{dt.datetime.now()}, {message.author.name}, {message.content}\n')
     chatlog.close()
 
@@ -85,23 +87,23 @@ async def on_message(message):
 
 # Greetings
     if msg_content.startswith('hi') or msg_content.startswith('hello'):
-        with open('chat.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        with open('/tmp/c2-chat.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
         log.close()
         await message.channel.send(random.choice(greetings))
 
 # Status Check
     if msg_content.startswith('status'):
-        with open('chat.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        with open('/tmp/c2-chat.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
         log.close()
 
         await message.channel.send(f'Yes, I am here...')
 
 # Update
     if msg_content.startswith('update'):
-        with open('command.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        with open('/tmp/c2-command.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
         log.close()
 
         await message.channel.send(f'Checking for updates...')
@@ -121,10 +123,23 @@ async def on_message(message):
         Popen(kill_chat, shell=True)
         print(f'{dt.datetime.now()}, Update Complete')
 
+# Restart chat.py
+    if msg_content.startswith('stop') or msg_content.startswith('restart'):
+        with open('/tmp/c2-command.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
+        log.close()
+
+        pidsub = Popen("ps aux | grep 'chat' | grep -v grep | awk -F '  ' '{print $2}'", shell=True, stdout=PIPE)
+        output = pidsub.stdout.readlines()
+        pid = output[0].decode('utf-8').strip('\n').strip()
+        kill_process = 'kill -9 ' + pid
+        await message.channel.send('I am killing my chat processes.... brb..')
+        Popen(kill_process, shell=True)
+
 # Quick IP Check
     if msg_content.startswith('ip'):
-        with open('command.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+        with open('/tmp/c2-command.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
         log.close()
 
         myIP = getIP()
@@ -138,15 +153,17 @@ async def on_message(message):
     if msg_content.startswith('cmd'):
         if message.author.name == authorized_user:
             msg = msg_content.split(' ')
-            with open('command.log','a') as log:
-                log.write(f'{dt.datetime.now()}, [public], {message.author.name}, {msg_content}\n')
+
+            with open('/tmp/c2-command.log','a') as log:
+                log.write(f'{dt.datetime.now()}, {message.author.name}, {msg_content}\n')
             log.close()
+
             cmd = ' '.join(msg[1:len(msg)])
             stdout = Popen(cmd, shell=True, stdout=PIPE).stdout
             output = stdout.read().decode('utf-8').split('\n')
             for eachline in output:
                 if bool(eachline) == True:
-                     await message.channel.send(eachline)
+                    await message.channel.send(eachline)
 
 # Lets play magic eightball
     if msg_content.startswith('8ball') or msg_content.startswith('shake'):
@@ -164,8 +181,8 @@ async def on_message(message):
         msg = msg_content.split(' ')
 
         # Create chat log
-        with open('command_dm.log','a') as log:
-            log.write(f'{dt.datetime.now()}, [dm], {msg_content}\n')
+        with open('/tmp/c2-command_dm.log','a') as log:
+            log.write(f'{dt.datetime.now()}, {msg_content}\n')
         log.close()
         
         cmd = ' '.join(msg[2:len(msg)])
